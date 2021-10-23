@@ -20,10 +20,13 @@ do
     ping -c 1 "$ip" > /dev/null
     if [ $? -eq 0 ]; 
     then
-    echo "$date" "Node" "$ip" "is up"
-    else
-    echo "$date" "Node" "$ip" "down"
-    fi
+#    echo " $ip "
+    printf "\n \n$ip\n"
+#    echo "$date" "Node" "$ip" "is up!!!!!!!!!"
+#    else
+#    echo #"..."
+#    echo "$date" "Node" "$ip" "down"
+   fi
 done
 #End of Forloop
 #Remove files that were used.
