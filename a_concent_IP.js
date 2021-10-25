@@ -15,8 +15,8 @@ function setToken(token) {
 		},
 	);
 }
-Axios.defaults.timeout = 2 * 1000;
-const Rx = require('./node_modules/rxjs');
+Axios.defaults.timeout = 4 * 1000;
+const Rx = require('rxjs');
 const { from, map, mergeMap, concatAll, filter, tap, observable, Subject } = Rx;
 //const { fromPromise } = observable;
 
@@ -26,28 +26,37 @@ let ipList = new Array(255)
 	.filter(i => !excludeArr.includes(i));
 
 const targetMac = ['96:DC:B2:ED:00:2E', '96:DC:B2:ED:00:2F'];
-const macNum = 0; // 网口号： 0 或 1
+const macNum = 1; // 网口号： 0 或 1
 
-from(ipList)
-	.pipe(
-		map(i => (async () => await getToken(i))()),
-		concatAll(),
-		filter(i => i),
-		map(i => (async () => await getMAC(macNum, ...i))()),
-		concatAll(),
-		filter(i => Array.isArray(i)),
-		map(i => (async () => await getBuildTime(...i))()),
-		concatAll(),
-		tap(i => console.log(i)),
-		filter(
-			i =>
-				i[1].includes(targetMac[0].toLowerCase()) ||
-				i[1].includes(targetMac[1].toLowerCase()),
-		),
-	)
-	.subscribe(i => {
-		console.log(`目标 IP 是   192.168.35.${i[0]}`);
-	});
+console.log('-----');
+logRTUip(ipList, 0);
+setTimeout(() => {
+	console.log('-----');
+	logRTUip(ipList, 1);
+}, 5000);
+
+function logRTUip(ipList, macNum) {
+	from(ipList)
+		.pipe(
+			map(i => (async () => await getToken(i))()),
+			concatAll(),
+			filter(i => i),
+			map(i => (async () => await getMAC(macNum, ...i))()),
+			concatAll(),
+			filter(i => Array.isArray(i)),
+			map(i => (async () => await getBuildTime(...i))()),
+			concatAll(),
+			tap(i => console.log(i)),
+			filter(
+				i =>
+					i[1].includes(targetMac[0].toLowerCase()) ||
+					i[1].includes(targetMac[1].toLowerCase()),
+			),
+		)
+		.subscribe(i => {
+			console.log(`目标 IP 是   192.168.35.${i[0]}`);
+		});
+}
 
 function getToken(ip) {
 	return new Promise((resolve, reject) => {
